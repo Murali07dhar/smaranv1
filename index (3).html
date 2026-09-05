@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Smaran — Cognitive Care Companion</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="app" class="screen-fade">
+
+  <!-- ============ ROLE PICKER ============ -->
+  <section id="view-gate" class="view active">
+    <div class="gate-wrap">
+      <div class="gate-mark" aria-hidden="true">
+        <svg viewBox="0 0 120 120" width="72" height="72">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="var(--gold)" stroke-width="3"/>
+          <path d="M38 66 C38 40, 82 40, 82 66" fill="none" stroke="var(--teal)" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="60" cy="46" r="10" fill="var(--teal)"/>
+        </svg>
+      </div>
+      <p class="gate-eyebrow">Smaran</p>
+      <h1 class="gate-title">A quiet companion for remembering.</h1>
+      <p class="gate-sub">Choose how you'd like to enter today.</p>
+
+      <div class="gate-choices">
+        <button class="gate-card" data-role="patient">
+          <span class="gate-card-title">I am the patient</span>
+          <span class="gate-card-desc">A simple, guided visit — photos, sounds, and gentle activities.</span>
+        </button>
+        <button class="gate-card" data-role="caregiver">
+          <span class="gate-card-title">I am the caregiver</span>
+          <span class="gate-card-desc">Set up activities, reminders, and see how things are going.</span>
+        </button>
+      </div>
+
+      <button id="lang-toggle" class="lang-pill" type="button">অসমীয়া</button>
+    </div>
+  </section>
+
+  <!-- ============ CAREGIVER: PATIENT PICKER ============ -->
+  <section id="view-cg-select" class="view">
+    <header class="topbar">
+      <button class="back-btn" data-back="view-gate">← Exit</button>
+      <span class="topbar-title">Caregiver</span>
+      <span></span>
+    </header>
+    <div class="panel-wrap">
+      <h2 class="panel-h">Who are you caring for?</h2>
+      <div id="patient-list" class="patient-list"></div>
+      <form id="add-patient-form" class="inline-form">
+        <input id="new-patient-name" type="text" placeholder="Add a new patient's name" required>
+        <button type="submit">Add</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============ CAREGIVER: DASHBOARD ============ -->
+  <section id="view-cg-dash" class="view">
+    <header class="topbar">
+      <button class="back-btn" data-back="view-cg-select">← Patients</button>
+      <span class="topbar-title" id="cg-dash-name">Dashboard</span>
+      <span></span>
+    </header>
+
+    <div class="panel-wrap">
+
+      <div class="stage-band" id="stage-band">
+        <div>
+          <p class="stage-label">Screening-support estimate — not a diagnosis</p>
+          <p class="stage-value" id="stage-value">Not enough sessions yet</p>
+        </div>
+        <div class="stage-meter" id="stage-meter" aria-hidden="true"></div>
+      </div>
+
+      <div class="dash-grid">
+
+        <div class="dash-card">
+          <h3>Assign activities</h3>
+          <p class="dash-card-sub">Chosen activities appear in the patient's guided visit, easiest first.</p>
+          <div id="activity-toggles" class="toggle-list"></div>
+        </div>
+
+        <div class="dash-card">
+          <h3>Reminders</h3>
+          <p class="dash-card-sub">Medicine, water, activity and appointments. Never shown as a "reminder system" to the patient — delivered as a simple visual + spoken alert at the right time.</p>
+          <div id="reminder-list" class="reminder-list"></div>
+          <form id="add-reminder-form" class="inline-form stacked">
+            <select id="reminder-type">
+              <option value="medicine">Medicine</option>
+              <option value="hydration">Hydration</option>
+              <option value="activity">Daily activity</option>
+              <option value="appointment">Appointment</option>
+            </select>
+            <input id="reminder-label" type="text" placeholder="e.g. Blood pressure tablet" required>
+            <input id="reminder-time" type="time" required>
+            <button type="submit">Add reminder</button>
+          </form>
+        </div>
+
+        <div class="dash-card">
+          <h3>Memory Trigger Analysis</h3>
+          <p class="dash-card-sub">Which kind of personal stimulus helps this patient recall best.</p>
+          <div id="trigger-analysis" class="trigger-bars"></div>
+        </div>
+
+        <div class="dash-card wide">
+          <h3>Recall trend</h3>
+          <p class="dash-card-sub">Accuracy across the most recent guided visits.</p>
+          <svg id="trend-chart" viewBox="0 0 640 200" class="trend-svg"></svg>
+        </div>
+
+        <div class="dash-card wide">
+          <h3>Session log</h3>
+          <div id="session-log" class="session-log"></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PATIENT: WELCOME ============ -->
+  <section id="view-p-welcome" class="view">
+    <div class="patient-frame">
+      <button class="quiet-exit" data-back="view-gate" title="Exit">✕</button>
+      <div class="p-center">
+        <p class="p-greeting" id="p-greeting">Good day.</p>
+        <p class="p-name" id="p-name-display"></p>
+        <button id="p-start-btn" class="p-huge-btn">Begin</button>
+      </div>
+      <div class="p-steps" aria-hidden="true">
+        <span class="dot active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PATIENT: ACTIVITY STAGE ============ -->
+  <section id="view-p-activity" class="view">
+    <div class="patient-frame">
+      <button class="quiet-exit" data-back="view-gate" title="Exit">✕</button>
+      <div id="activity-stage" class="activity-stage"></div>
+      <div class="p-steps" aria-hidden="true">
+        <span class="dot"></span><span class="dot active"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PATIENT: GENTLE FEEDBACK ============ -->
+  <section id="view-p-feedback" class="view">
+    <div class="patient-frame">
+      <button class="quiet-exit" data-back="view-gate" title="Exit">✕</button>
+      <div class="p-center">
+        <div class="p-feedback-mark" id="p-feedback-mark">🌿</div>
+        <p class="p-feedback-msg" id="p-feedback-msg">Lovely.</p>
+        <button id="p-continue-btn" class="p-huge-btn">Continue</button>
+      </div>
+      <div class="p-steps" aria-hidden="true">
+        <span class="dot"></span><span class="dot"></span><span class="dot active"></span><span class="dot"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PATIENT: SESSION COMPLETE ============ -->
+  <section id="view-p-done" class="view">
+    <div class="patient-frame">
+      <div class="p-center">
+        <div class="p-feedback-mark">🪔</div>
+        <p class="p-greeting">That's everything for now.</p>
+        <p class="p-sub">Rest a while. We'll visit again soon.</p>
+        <button id="p-done-btn" class="p-huge-btn">Done</button>
+      </div>
+      <div class="p-steps" aria-hidden="true">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot active"></span>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script src="i18n.js"></script>
+<script src="engine.js"></script>
+<script src="games.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
